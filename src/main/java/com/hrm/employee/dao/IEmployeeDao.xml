@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrm.employee.dao.IEmployeeDao">
+
+    <select id="selectAllJob" resultType="Job">
+        select * from job_inf
+    </select>
+
+    <select id="selectAllDept" resultType="Dept">
+        select * from dept_inf
+    </select>
+
+
+    <!--关联查询，将employee_inf表的外键同关联表关联起来查询外键信息-->
+    <select id="selectDeptById" resultType="Dept">
+        select * from dept_inf WHERE id=#{dept_id}
+    </select>
+    <select id="selectJobById" resultType="Job">
+        select * from job_inf where id = #{job_id}
+    </select>
+    <resultMap id="employeeMap" type="Employee">
+        <id column="id" property="id"/>
+        <!--多对一使用-->
+        <association property="job"
+                     javaType="Job"
+                     select="selectJobById"
+                     column="job_id"/>
+        <association property="dept"
+                     javaType="Dept"
+                     select="selectDeptById"
+                     column="dept_id"/>
+    </resultMap>
+
+    <select id="selectEmployee" resultMap="employeeMap">
+        select * from employee_inf
+        <where>
+            <if test="employee.job != null">
+                and job_id = #{employee.job.id}
+            </if>
+            <if test="employee.name != null and employee.name !='' ">
+                and name like '%' #{employee.name} '%'
+            </if>
+            <if test="employee.card_id != null and employee.card_id !=''">
+                and card_id=#{employee.card_id}
+            </if>
+            <if test="employee.sex >0">
+                 and sex = #{employee.sex}
+            </if>
+            <if test="employee.phone != null and employee.phone !=''">
+                and phone = #{employee.phone}
+            </if>
+            <if test="employee.dept != null">
+                and dept_id = #{employee.dept.id}
+            </if>
+
+        </where>
+        limit #{pageModel.firstLimitParam},#{pageModel.pageSize}
+    </select>
+
+    <select id="selectEmployeeCount" resultType="int">
+        select count(*) from employee_inf
+        <where>
+            <if test="job != null">
+                and job_id = #{job.id}
+            </if>
+            <if test="name != null and name !='' ">
+                and name like '%' #{name} '%'
+            </if>
+            <if test="card_id != null and card_id !=''">
+                and card_id=#{card_id}
+            </if>
+            <if test="sex >0">
+                and sex = #{sex}
+            </if>
+            <if test="phone != null and phone !=''">
+                and phone = #{phone}
+            </if>
+            <if test="dept != null">
+                and dept_id = #{dept.id}
+            </if>
+
+        </where>
+
+    </select>
+
+    <select id="selectEmployeeById" resultMap="employeeMap">
+        select * from employee_inf where id = #{id}
+    </select>
+
+    <update id="updateEmployee" >
+        update employee_inf
+        set name=#{name},card_id=#{card_id},sex=#{sex},job_id=#{job.id},education=#{education},
+        email=#{email},tel=#{tel},phone=#{phone},party=#{party},qq_num=#{qq_num},address=#{address},
+        post_code=#{post_code},birthday=#{birthday},race=#{race},speciality=#{speciality},hobby=#{hobby},
+        remark=#{remark},dept_id=#{dept.id}
+        where id=#{id}
+    </update>
+
+    <delete id="deleteEmployee">
+        delete from employee_inf where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertEmployee">
+        insert into employee_inf
+        (name,card_id,sex,job_id,education,email,phone,tel,party,qq_num,address,post_code,
+        birthday,race,speciality,hobby,remark,dept_id)
+        values (#{name},#{card_id},#{sex},#{job.id},#{education},#{email},#{phone},#{tel},
+        #{party},#{qq_num},#{address},#{post_code},#{birthday},#{race},#{speciality},
+        #{hobby},#{remark},#{dept.id})
+    </insert>
+</mapper>

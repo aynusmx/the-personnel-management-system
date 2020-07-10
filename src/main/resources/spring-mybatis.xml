@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!--    生成注册sqlSessionFactory对象-->
+    <bean id="mySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--加载数据源-->
+        <property name="dataSource" ref="myDataSource"/>
+        <!--加载mybatis主配置文件-->
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+    </bean>
+<!--    生成dao的代理对象-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.hrm.**.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="mySqlSessionFactory"/>
+    </bean>
+</beans>
